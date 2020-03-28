@@ -28,5 +28,7 @@ private:
 
 	float InitialYaw;
 	float CurrentYaw;
-	float TargetYaw;		
+
+	UPROPERTY(EditAnywhere) // Exposes the variable to details panel in Editor
+	float TargetYaw = 90.f;		
 };

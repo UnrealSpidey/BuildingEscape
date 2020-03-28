@@ -22,7 +22,8 @@ void UOpenDoor::BeginPlay()
 
 	InitialYaw = GetOwner()->GetActorRotation().Yaw;
 	CurrentYaw = InitialYaw;
-	TargetYaw = InitialYaw + 90.f;
+	TargetYaw += InitialYaw; //TargetYaw = TargetYaw + InitialYaw; The += is known as a compond assignment opperator
+	UE_LOG(LogTemp, Warning, TEXT("%s Target Yaw %f"), *GetOwner()->GetName(), TargetYaw);
 }
 
 
