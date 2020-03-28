@@ -1,8 +1,9 @@
 // Copyright Nick Bullard
 
-
-#include "OpenDoor.h"
+#include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
+#include "OpenDoor.h"
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
@@ -23,7 +24,13 @@ void UOpenDoor::BeginPlay()
 	InitialYaw = GetOwner()->GetActorRotation().Yaw;
 	CurrentYaw = InitialYaw;
 	TargetYaw += InitialYaw; //TargetYaw = TargetYaw + InitialYaw; The += is known as a compond assignment opperator
-	UE_LOG(LogTemp, Warning, TEXT("%s Target Yaw %f"), *GetOwner()->GetName(), TargetYaw);
+
+	if (!PressurePlate)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s has the OpenDoor component but PressurePlate is Null"), *GetOwner()->GetName());
+	}
+	
+	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 
@@ -32,9 +39,19 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	CurrentYaw = FMath::Lerp(CurrentYaw, TargetYaw, 0.02f);
+	if (PressurePlate && PressurePlate->IsOverlappingActor(ActorThatOpens)) // the PressurePlate && is a lazy guard
+	{
+		OpenDoor(DeltaTime);
+	}
+}
+
+
+// Called when Pawn is in Trigger Volume
+void UOpenDoor::OpenDoor(float DeltaTime)
+{
+	CurrentYaw = FMath::Lerp(CurrentYaw, TargetYaw, DeltaTime * 1.f);
 	FRotator DoorRotation = GetOwner()->GetActorRotation();
 	DoorRotation.Yaw = CurrentYaw;
-	GetOwner()->SetActorRotation(DoorRotation);
+	GetOwner()->SetActorRotation(DoorRotation); 
 }
 
